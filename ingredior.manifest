@@ -1,0 +1,7 @@
+{
+  "updateURL": "https://raw.githubusercontent.com/ZeroElectric/AE-Orbis-Launcher/main/orbis-update.manifest",
+  "launcherUpdate": "https://raw.githubusercontent.com/ZeroElectric/AE-Orbis-Launcher/main/launcher-update.manifest",
+  "outputTemplate": "ae-orbis-app",
+  "launcherName": "AE.Ingredior.exe",
+  "appVer":"1.4.0"
+}
