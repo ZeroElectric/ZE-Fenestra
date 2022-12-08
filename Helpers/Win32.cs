@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     #region Windows 11
 
@@ -20,7 +20,7 @@ namespace AE.Ingredior
         DWMWCP_ROUND = 2,
         DWMWCP_ROUNDSMALL = 3
     }
- 
+
     #endregion
 
     public static class Win32

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     public static class FileSystemHelper
     {
@@ -14,9 +14,12 @@ namespace AE.Ingredior
 
         public static string Input { get; } = GetDirectory(AEI, "Input");
         public static string Output { get; } = GetDirectory(AEI, "Output");
+        public static string OutputBin { get; } = GetDirectory(Output, "Bin");
 
         public static string Temp { get; } = GetDirectory(AEI, "Temp");
         public static string TempLog { get; } = GetDirectory(Temp, "Logs");
+        public static string TempBuild { get; } = GetDirectory(Temp, "Build");
+        public static string TempSetup { get; } = GetDirectory(TempBuild, "Build");
 
         //
         // Files
@@ -31,7 +34,7 @@ namespace AE.Ingredior
         {
             if (path != null && path.Length > 0)
             {
-                var dirPath = Path.Combine(path);
+                string dirPath = Path.Combine(path);
 
                 if (Directory.Exists(dirPath) == false)
                 {
@@ -48,14 +51,14 @@ namespace AE.Ingredior
         {
             if (path != null && path.Length > 0)
             {
-                var dirPath = Path.Combine(path);
+                string dirPath = Path.Combine(path);
 
                 if (Directory.Exists(dirPath) == false)
                 {
                     Directory.CreateDirectory(dirPath);
                 }
 
-                var filePath = Path.Combine(dirPath, fileName);
+                string filePath = Path.Combine(dirPath, fileName);
 
                 if (clearFile || File.Exists(filePath) == false)
                 {

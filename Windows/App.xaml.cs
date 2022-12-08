@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     public partial class App : Application
     {

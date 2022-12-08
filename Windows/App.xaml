@@ -1,7 +1,7 @@
-﻿<Application x:Class="AE.Ingredior.App"
+﻿<Application x:Class="ZeroElectric.Fenestra.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AE.Ingredior"
+             xmlns:local="clr-namespace:ZeroElectric.Fenestra"
              StartupUri="Windows/MainWindow.xaml">
     <Application.Resources>
          

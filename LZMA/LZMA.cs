@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     public class LZMA
     {
@@ -23,7 +23,7 @@ namespace AE.Ingredior
 
             coder.Code(inStream, outStream, -1, -1, null);
         }
-       
+
         public static void Decompress(Stream inStream, Stream outStream)
         {
             if (inStream == null && outStream == null)
@@ -32,7 +32,7 @@ namespace AE.Ingredior
             }
 
             SevenZip.Compression.LZMA.Decoder coder = new SevenZip.Compression.LZMA.Decoder();
-          
+
             // Read the decoder properties
             byte[] properties = new byte[5];
             inStream.Read(properties, 0, 5);
@@ -44,6 +44,6 @@ namespace AE.Ingredior
 
             coder.SetDecoderProperties(properties);
             coder.Code(inStream, outStream, inStream.Length, fileLength, null);
-        }  
+        }
     }
 }

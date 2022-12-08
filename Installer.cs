@@ -7,50 +7,53 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     public class Installer
     {
 
         public async Task RunAppAsync()
         {
-            if (Program.AppManifest == null || string.IsNullOrEmpty(Program.AppManifest.updateURL))
+            if (Program.AppManifest == null || string.IsNullOrEmpty(Program.AppManifest.appManifestURI))
             {
-                Log.Fatal("AppManifest not found, Ingredior is not setup for install mode");
+                Log.Fatal("ingredior.manifest was not found or was invallid");
 
-                Environment.Exit(0);
+                MessageBox.Show("Ingredior is not setup for install mode.\ningredior.manifest was not found or was invallid.", "Ingredior, Fatal Error", MessageBoxButton.OK);
+
+                Environment.Exit(1);
             }
 
-            if(Program.DoUpdate)
+            if (Program.DoUpdate)
             {
-                var wpr = new WebPackageResolver(Program.AppManifest.updateURL);
+                WebPackageResolver wpr = new WebPackageResolver(Program.AppManifest.appManifestURI);
 
-                Log.Debug("Checking for updates...");
+                Log.Information("Checking for updates...");
 
-                var versions = await wpr.GetPackageVersionsAsync();
+                System.Collections.Generic.IReadOnlyList<Version> versions = await wpr.GetPackageVersionsAsync();
 
-                var maxVerAvl = versions.Max();
-            
+                Version maxVerAvl = versions.Max();
+
                 AppSettings.Settings.NextUpdateCheck = DateTime.Now.AddMinutes(30);
 
-                if (maxVerAvl > AppSettings.Settings.InstalledVersion)
+                if (maxVerAvl > AppSettings.Settings.InstalledAppVersion)
                 {
                     Log.Information("New App version is available, v{ver}", maxVerAvl);
 
                     // Update is available
-                    var aepkgPath = Path.Combine(FileSystemHelper.Temp, $"{maxVerAvl}.aepkg");
+                    string aepkgPath = Path.Combine(FileSystemHelper.Temp, $"{maxVerAvl}.aepkg");
 
-                    Log.Debug("Downloading update...");
+                    Log.Information("Downloading update...");
 
                     await wpr.DownloadPackageAsync(maxVerAvl, aepkgPath);
 
                     Log.Information("Updating...");
 
-                    var header = await DeserializedAndOutputPkg(aepkgPath);
+                    MPackManifest header = await DeserializedAndOutputPkg(aepkgPath);
 
                     AppSettings.Settings.LastHeader = header;
-                    AppSettings.Settings.InstalledVersion = maxVerAvl;
+                    AppSettings.Settings.InstalledAppVersion = maxVerAvl;
 
                     // TODO Cean up temp files, last installed app folder and run SpecialDirectories
 
@@ -93,19 +96,19 @@ namespace AE.Ingredior
             {
                 Log.Fatal("For some reason AutoRunPath is empty");
 
-                Environment.Exit(0);
+                Environment.Exit(1);
             }
         }
 
-        public Task<MPackHeader> DeserializedAndOutputPkg(string pkgPath)
+        public Task<MPackManifest> DeserializedAndOutputPkg(string pkgPath)
         {
             MPack mPack;
-            MPackHeader packHeader;
+            MPackManifest packHeader;
             string endOutputPath;
 
             #region Decompress & Deserialize
 
-            var tempFile = Path.Combine(FileSystemHelper.Temp, "aepkg.temp");
+            string tempFile = Path.Combine(FileSystemHelper.Temp, "aepkg.temp");
 
             using (FileStream tempOutput = File.Create(tempFile))
             using (FileStream pkgInput = File.OpenRead(pkgPath))
@@ -131,15 +134,15 @@ namespace AE.Ingredior
 
             GC.Collect(3);
 
-            packHeader = mPack.Header;
+            packHeader = mPack.Manifest;
 
             endOutputPath = Path.Combine(FileSystemHelper.BaseDirectory, $"{packHeader.pkgName}-{packHeader.pkgVer}");
 
             // Directory Output
 
-            foreach (var directory in mPack.Directories)
+            foreach (MPackDirectory directory in mPack.Directories)
             {
-                var fullPath = Path.Combine(endOutputPath, directory.RelativePath);
+                string fullPath = Path.Combine(endOutputPath, directory.RelativePath);
 
                 Directory.CreateDirectory(fullPath);
 
@@ -152,7 +155,7 @@ namespace AE.Ingredior
             {
                 MPackFile file = mPack.Files[i];
 
-                var fullPath = Path.Combine(endOutputPath, file.RelativePath);
+                string fullPath = Path.Combine(endOutputPath, file.RelativePath);
 
                 using (FileStream fileStream = File.Create(fullPath))
                 {
@@ -175,18 +178,18 @@ namespace AE.Ingredior
             return Task.FromResult(packHeader);
         }
 
-        public Task BuildPkg()
+        public Task<MPackManifest> BuildPkg()
         {
-            MPackHeader header;
-            var pgkMan = Path.Combine(FileSystemHelper.Input, "aepkg.manifest");
+            MPackManifest header = null;
+            string pgkMan = Path.Combine(FileSystemHelper.Input, "aepkg.manifest");
 
             if (File.Exists(pgkMan))
             {
                 try
                 {
-                    using (var steam = File.OpenRead(pgkMan))
+                    using (FileStream steam = File.OpenRead(pgkMan))
                     {
-                        header = JsonSerializer.Deserialize<MPackHeader>(steam);
+                        header = JsonSerializer.Deserialize<MPackManifest>(steam);
                     }
 
                     Compress(header);
@@ -201,35 +204,35 @@ namespace AE.Ingredior
                 Log.Fatal("aepkg.manifest does not exists in imput folder");
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult<MPackManifest>(header);
         }
 
-        public Task Compress(MPackHeader header)
+        public Task Compress(MPackManifest header)
         {
             MPack mPack = new MPack
             {
-                Header = header
+                Manifest = header
             };
 
             string outputPath = Path.Combine(FileSystemHelper.Output, $"{header.output.pkgName}-{header.pkgVer}.aepkg");
 
             // Get all directories
 
-            var alldirs = Directory.GetDirectories(FileSystemHelper.Input, "*", SearchOption.AllDirectories);
+            string[] alldirs = Directory.GetDirectories(FileSystemHelper.Input, "*", SearchOption.AllDirectories);
 
             if (alldirs.Length > 0)
             {
-                foreach (var dir in alldirs)
+                foreach (string dir in alldirs)
                 {
-                    var dirInfo = new DirectoryInfo(dir);
+                    DirectoryInfo dirInfo = new DirectoryInfo(dir);
 
-                    var relPath = GetRelativePath(dir, FileSystemHelper.Input);
+                    string relPath = GetRelativePath(dir, FileSystemHelper.Input);
 
                     relPath += Path.DirectorySeparatorChar;
 
                     mPack.Directories.Add(new MPackDirectory { Name = dirInfo.Name, RelativePath = relPath });
 
-                    Log.Debug("Directories {name} Found, Path: {path}", dirInfo.Name, relPath);
+                    Log.Debug("New directory found: {name}, Path: {path}", dirInfo.Name, relPath);
                 }
             }
 
@@ -237,15 +240,15 @@ namespace AE.Ingredior
 
             // Get all bytes from files 
 
-            var files = Directory.GetFiles(FileSystemHelper.Input, "*", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(FileSystemHelper.Input, "*", SearchOption.AllDirectories);
 
-            foreach (var file in files)
+            foreach (string file in files)
             {
                 FileInfo fileInfo = new FileInfo(file);
 
                 if (fileInfo.Extension != ".pdb" && fileInfo.Name != "aepkg.manifest")
                 {
-                    var relPath = GetRelativePath(file, FileSystemHelper.Input);
+                    string relPath = GetRelativePath(file, FileSystemHelper.Input);
 
                     mPack.Files.Add(new MPackFile { Name = fileInfo.Name, RelativePath = relPath, Data = File.ReadAllBytes(file) });
 
@@ -263,7 +266,7 @@ namespace AE.Ingredior
             // MPack File
             //
 
-            var tempFile = Path.Combine(FileSystemHelper.Temp, "mpack.temp");
+            string tempFile = Path.Combine(FileSystemHelper.Temp, "mpack.temp");
 
             using (FileStream tempInput = File.Create(tempFile))
             using (FileStream aepkgOutput = File.Create(outputPath))
@@ -278,8 +281,6 @@ namespace AE.Ingredior
                 aepkgOutput.Seek(0, SeekOrigin.Begin);
 
                 LZMA.Compress(tempInput, aepkgOutput);
-
-                //ICSharpCode.SharpZipLib.BZip2.BZip2.Compress(input, mpOSteam, true, level: 9);
             }
 
             Log.Debug("AEPKG file saved\n\tPath:{path}", outputPath);

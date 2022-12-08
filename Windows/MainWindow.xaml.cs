@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace AE.Ingredior.Launcher
+namespace ZeroElectric.Fenestra.Launcher
 {
     public partial class MainWindow : Window
     {
@@ -12,13 +12,13 @@ namespace AE.Ingredior.Launcher
         {
             InitializeComponent();
 
-            this.Loaded += MainWindow_Loaded;
+            Loaded += MainWindow_Loaded;
 
             #region Windows 11
 
             IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
-            var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
-            var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+            DWMWINDOWATTRIBUTE attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
+            DWM_WINDOW_CORNER_PREFERENCE preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
             Win32.DwmSetWindowAttribute(hWnd, attribute, ref preference, sizeof(uint));
 
             #endregion
@@ -26,15 +26,15 @@ namespace AE.Ingredior.Launcher
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            appVer.Text = $"App v{AppSettings.Settings.InstalledVersion}";
-            laucherVer.Text = $"Launcher v{Program.AppManifest.appVer}";
+            appVer.Text = $"App v{AppSettings.Settings.InstalledAppVersion}";
+            laucherVer.Text = $"Launcher v{Program.AppManifest.launcherVer}";
 
             await Program.Installer.RunAppAsync();
         }
 
         public void SetWorkingText(string message)
         {
-            this.workingText.Text = message;
+            workingText.Text = message;
         }
 
         //
@@ -76,7 +76,7 @@ namespace AE.Ingredior.Launcher
 
         private void Test4_Click(object sender, RoutedEventArgs e)
         {
-            InstallBuilder.Builder.BuildEXE();
+            SetupBuilder.Builder.BuildEXE();
         }
     }
 }

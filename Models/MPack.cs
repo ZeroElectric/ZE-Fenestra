@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     [MessagePackObject]
     public class MPack
     {
         [MessagePack.Key(0)]
-        public MPackHeader Header { get; set; }
+        public MPackManifest Manifest { get; set; }
 
         [MessagePack.Key(1)]
         public List<MPackDirectory> Directories { get; set; } = new List<MPackDirectory>();
@@ -20,7 +20,7 @@ namespace AE.Ingredior
     #region Header
 
     [MessagePackObject]
-    public class MPackHeader
+    public class MPackManifest
     {
         [MessagePack.Key(0)]
         public string pkgName { get; set; }
@@ -64,17 +64,17 @@ namespace AE.Ingredior
         public string dirPath { get; set; }
 
         [MessagePack.Key(1)]
-        public SD_OutputStrategy outputStrategy { get; set; }
+        public MPackOutputStrategy outputStrategy { get; set; }
 
         [MessagePack.Key(2)]
-        public SD_UpdateStrategy updateStrategy { get; set; }
+        public MPackUpdateStrategy updateStrategy { get; set; }
     }
 
-    public enum SD_OutputStrategy
+    public enum MPackOutputStrategy
     {
         AppRelative, LauncherRelative
     }
-    public enum SD_UpdateStrategy
+    public enum MPackUpdateStrategy
     {
         Replace, CleanAndReplace
     }

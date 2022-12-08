@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace AE.Ingredior
+namespace ZeroElectric.Fenestra
 {
     internal class DependencyDetector
     {
@@ -13,7 +13,7 @@ namespace AE.Ingredior
 
             if (Directory.Exists(NetPath))
             {
-                var dirs = Directory.GetDirectories(NetPath);
+                string[] dirs = Directory.GetDirectories(NetPath);
                 for (int i = 0; i < dirs.Length; i++)
                 {
                     stringBuilder.Append(dirs[i]);
