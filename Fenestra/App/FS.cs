@@ -3,7 +3,7 @@ using System.IO;
 
 namespace ZeroElectric.Fenestra
 {
-    public static class FileSystemHelper
+    public static class FS
     {
         //
         // Directories
@@ -34,7 +34,7 @@ namespace ZeroElectric.Fenestra
         {
             if (path != null && path.Length > 0)
             {
-                string dirPath = Path.Combine(path);
+                var dirPath = Path.Combine(path);
 
                 if (Directory.Exists(dirPath) == false)
                 {
@@ -51,14 +51,14 @@ namespace ZeroElectric.Fenestra
         {
             if (path != null && path.Length > 0)
             {
-                string dirPath = Path.Combine(path);
+                var dirPath = Path.Combine(path);
 
                 if (Directory.Exists(dirPath) == false)
                 {
                     Directory.CreateDirectory(dirPath);
                 }
 
-                string filePath = Path.Combine(dirPath, fileName);
+                var filePath = Path.Combine(dirPath, fileName);
 
                 if (clearFile || File.Exists(filePath) == false)
                 {
@@ -72,6 +72,14 @@ namespace ZeroElectric.Fenestra
             }
 
             return string.Empty;
+        }
+
+        public static void ClearTemp()
+        {
+            foreach (var file in Directory.GetFiles(Temp, "*", SearchOption.AllDirectories))
+            {
+                File.Delete(file);
+            }
         }
     }
 }

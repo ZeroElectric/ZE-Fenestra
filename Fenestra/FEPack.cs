@@ -5,22 +5,24 @@ using System.Collections.Generic;
 namespace ZeroElectric.Fenestra
 {
     [MessagePackObject]
-    public class MPack
+    public class FEPack
     {
         [MessagePack.Key(0)]
-        public MPackManifest Manifest { get; set; }
+        public FEPackManifest Manifest { get; set; }
 
         [MessagePack.Key(1)]
-        public List<MPackDirectory> Directories { get; set; } = new List<MPackDirectory>();
+        public List<FEPackDirectory> Directories { get; set; } = new List<FEPackDirectory>();
 
         [MessagePack.Key(2)]
-        public List<MPackFile> Files { get; set; } = new List<MPackFile>();
+        public List<FEPackFile> Files { get; set; } = new List<FEPackFile>();
     }
 
-    #region Header
+    //
+    // Manifest
+    //
 
     [MessagePackObject]
-    public class MPackManifest
+    public class FEPackManifest
     {
         [MessagePack.Key(0)]
         public string pkgName { get; set; }
@@ -35,14 +37,14 @@ namespace ZeroElectric.Fenestra
         public string netDependency { get; set; }
 
         [MessagePack.Key(4)]
-        public MPackOutput output { get; set; }
+        public OutputDefinition output { get; set; }
 
         [MessagePack.Key(5)]
         public SpecialDirectory[] SpecialDirectories { get; set; }
     }
 
     [MessagePackObject]
-    public class MPackOutput
+    public class OutputDefinition
     {
         [MessagePack.Key(0)]
         public string launcherName { get; set; }
@@ -64,25 +66,29 @@ namespace ZeroElectric.Fenestra
         public string dirPath { get; set; }
 
         [MessagePack.Key(1)]
-        public MPackOutputStrategy outputStrategy { get; set; }
+        public FEPackOutputStrategy outputStrategy { get; set; }
 
         [MessagePack.Key(2)]
-        public MPackUpdateStrategy updateStrategy { get; set; }
+        public FEPackUpdateStrategy updateStrategy { get; set; }
     }
 
-    public enum MPackOutputStrategy
+    public enum FEPackOutputStrategy
     {
-        AppRelative, LauncherRelative
+        AppRelative,
+        LauncherRelative
     }
-    public enum MPackUpdateStrategy
+    public enum FEPackUpdateStrategy
     {
-        Replace, CleanAndReplace
+        Replace, 
+        CleanAndReplace
     }
 
-    #endregion
+    //
+    // File / Directory
+    //
 
     [MessagePackObject]
-    public class MPackDirectory
+    public class FEPackDirectory
     {
         [MessagePack.Key(0)]
         public string Name { get; set; }
@@ -92,7 +98,7 @@ namespace ZeroElectric.Fenestra
     }
 
     [MessagePackObject]
-    public class MPackFile
+    public class FEPackFile
     {
         [MessagePack.Key(0)]
         public string Name { get; set; }
@@ -101,6 +107,12 @@ namespace ZeroElectric.Fenestra
         public string RelativePath { get; set; }
 
         [MessagePack.Key(2)]
-        public byte[] Data { get; set; }
+        public long Size { get; set; }
+
+        [MessagePack.Key(3)]
+        public long Offset { get; set; }
+
+        [MessagePack.Key(4)]
+        public byte[] UncompressedHash { get; set; }
     }
 }

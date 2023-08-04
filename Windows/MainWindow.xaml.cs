@@ -1,13 +1,15 @@
-﻿using Serilog;
-using System;
-using System.IO;
+﻿using System;
 using System.Windows;
 using System.Windows.Interop;
+using Serilog;
+using ZeroElectric.Fenestra.Windows;
 
 namespace ZeroElectric.Fenestra.Launcher
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IStageReceiver
     {
+        private readonly Editor Editor = new Editor();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -24,59 +26,103 @@ namespace ZeroElectric.Fenestra.Launcher
             #endregion
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             appVer.Text = $"App v{AppSettings.Settings.InstalledAppVersion}";
             laucherVer.Text = $"Launcher v{Program.AppManifest.launcherVer}";
 
-            await Program.Installer.RunAppAsync();
-        }
+            Editor.Show();
 
-        public void SetWorkingText(string message)
-        {
-            workingText.Text = message;
+            StageManager.SetStageReceiver(this);
+
+            if (Program.DoDebug == false)
+            {
+                Program.Installer.Update();
+            }
         }
 
         //
+        // IStageReceiver
+        //
 
-        private void Test_Click(object sender, RoutedEventArgs e)
+        public void OnStageChanged(Stage stage)
+        {
+            Dispatch(() => {
+                switch (stage)
+                {
+
+                }
+            });
+        }
+        public void OnStageTextChanged(string message)
+        {
+            Dispatch(() => {
+                stageText.Text = message;
+            });
+        }
+
+        public void DisplayWork(string message)
+        {
+            Dispatch(() => {
+                workingText.Text = $"{message}\n{workingText.Text}";
+            });
+        }
+        public void ShowError(string message)
+        {
+            //TODO
+        }
+
+        public void ClearWorkText()
+        {
+            Dispatch(() => {
+                workingText.Text = "";
+            });
+        }
+
+        //
+        public void Dispatch(Action callback)
+        {
+            Dispatcher.Invoke(() => {
+                callback.Invoke();
+            });
+        }
+
+        //
+        //
+        //
+
+        private void OnClick_Quit(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
         }
 
-        private async void Test2_Click(object sender, RoutedEventArgs e)
+        private void OnClick_Build(object sender, RoutedEventArgs e)
         {
             try
             {
-                await Program.Installer.BuildPkg();
+                Program.Installer.BuildPAK();
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Exception while compressing aepkg");
             }
-
-            GC.Collect(3);
         }
 
-        private async void Test3_Click(object sender, RoutedEventArgs e)
+        private void OnClick_PkgOut(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                string outputPath = Path.Combine(FileSystemHelper.Output, $"AEO-1.0.0.aepkg");
 
-                await Program.Installer.DeserializedAndOutputPkg(outputPath);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Exception while decompressing aepkg");
-            }
-
-            GC.Collect(3);
         }
 
-        private void Test4_Click(object sender, RoutedEventArgs e)
+        private void OnClick_Launch(object sender, RoutedEventArgs e)
         {
-            SetupBuilder.Builder.BuildEXE();
+            Program.DoUpdate = false;
+
+            Program.Installer.Launch();
+        }
+
+        private void OnClick_Load(object sender, RoutedEventArgs e)
+        {
+            Program.Installer.DecompressPAK();
         }
     }
 }

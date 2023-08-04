@@ -3,31 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      
-        xmlns:local="clr-namespace:ZeroElectric.Fenestra.Launcher"
-    
+          
         mc:Ignorable="d"
         
-        Title="AEO" 
+        Title="ZEF Launcher" 
         ResizeMode="NoResize" WindowStyle="None" 
-        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True"
         Background="Transparent" Height="300" Width="400">
 
     <Grid Background="Black">
-        <Image Source="/assets/aeo-launcher-hero.png" Stretch="UniformToFill" />
+        <Image Source="/assets/zef-launcher-hero.png" Stretch="UniformToFill" />
 
-        <Grid Visibility="Collapsed">
-            <Button Content="Quit" Height="33" Width="68" Margin="10,10,0,0" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Left" Click="Test_Click"/>
-            <Button Content="Build Pkg" Height="33" Width="68" Margin="83,10,0,0" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Left" Click="Test2_Click"/>
-            <Button Content="Output Pkg" Height="33" Margin="156,10,176,0" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" Click="Test3_Click"/>
-            <Button Content="Launch App" Height="33" Width="68" Margin="229,10,0,0" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Top" HorizontalAlignment="Left" Click="Test4_Click"/>
-        </Grid>
+        <TextBlock x:Name="appVer" Text="App v1.0.0" TextAlignment="Right" Padding="0,0,3,0" Foreground="#72000000" Margin="0,13,0,0" VerticalAlignment="Top" FontSize="10"/>
+        <TextBlock x:Name="laucherVer" Text="Launcher v1.3.0" TextAlignment="Right" Padding="0,0,3,0" Foreground="#72000000" Margin="0,0,0,0" VerticalAlignment="Top" FontSize="10"/>
 
-        <TextBlock x:Name="appVer" Text="App v1.0.0" TextAlignment="Right" Padding="0,0,3,0" Foreground="#FFBEB7F6" Margin="0,0,0,45" VerticalAlignment="Bottom" FontSize="10"/>
-        <TextBlock x:Name="laucherVer" Text="Launcher v1.3.0" TextAlignment="Right" Padding="0,0,3,0" Foreground="#FFBEB7F6" Margin="0,0,0,35" VerticalAlignment="Bottom" FontSize="10"/>
+        <StackPanel x:Name="debug_buttons" Orientation="Horizontal" Visibility="Visible">
+            <Button Content="Quit" Height="33" Width="33" Margin="10,10,0,0" Click="OnClick_Quit" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Transparent" BorderBrush="Transparent" Foreground="#F21D1D1D"/>
+            <Button Content="Build pgk" Height="33" Width="70" Margin="10,10,0,0" Click="OnClick_Build" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Transparent" BorderBrush="Transparent" Foreground="#F21D1D1D"/>
+            <Button Content="Output pkg" Height="33" Width="70" Margin="10,10,0,0" Click="OnClick_PkgOut" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Transparent" BorderBrush="Transparent" Foreground="#F21D1D1D"/>
+            <Button Content="Launch App" Height="33" Width="70" Margin="10,10,0,0" Click="OnClick_Launch" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Transparent" BorderBrush="Transparent" Foreground="#F21D1D1D" />
+            <Button Content="Load pkg" Height="33" Width="70" Margin="10,10,0,0" Click="OnClick_Load" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Transparent" BorderBrush="Transparent" Foreground="#F21D1D1D" />
+        </StackPanel>
 
-        <ProgressBar x:Name="progress" Margin="15,0,15,2" Height="28" Value="0" IsIndeterminate="True" Foreground="#99161331" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Bottom" ></ProgressBar>
+        <ProgressBar x:Name="progress" Margin="15,0,15,5" Height="23" Value="0" IsIndeterminate="True" Foreground="#72000000" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Bottom" ></ProgressBar>
 
-        <TextBlock x:Name="workingText" Text="" TextAlignment="Center" Padding="5,0,0,0" Foreground="#FFBEB7F6" Margin="0,0,0,3" VerticalAlignment="Bottom" FontSize="19"/>
+        <TextBlock x:Name="stageText" Text="" TextAlignment="Center" FontFamily="Consolas" Padding="5,0,0,0" Foreground="#FF1D1D1D" Margin="0,100,0,0" VerticalAlignment="Top" FontSize="15"/>
+        <TextBlock x:Name="workingText" Text="" TextWrapping="Wrap" TextAlignment="Center" FontFamily="Consolas" Padding="5,0,0,0" Foreground="#FF1D1D1D" Margin="0,120,0,0" VerticalAlignment="Top" FontSize="15" Height="147"/>
     </Grid>
 </Window>

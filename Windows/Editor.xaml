@@ -1,0 +1,46 @@
+﻿<Window x:Class="ZeroElectric.Fenestra.Windows.Editor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    
+        xmlns:local="clr-namespace:ZeroElectric.Fenestra.Windows"
+    
+        mc:Ignorable="d"
+ 
+        Title="Editor" Height="600" Width="450" ResizeMode="NoResize">
+    <Grid Background="WhiteSmoke">
+        
+        <StackPanel>
+            <StackPanel.Resources>
+                <local:CompressionTypes x:Key="compressionTypes"/>
+            </StackPanel.Resources>
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text=" PAK CompressionType:   "/>
+                <ComboBox Width="120" SelectedIndex="0" IsReadOnly="true" ItemsSource="{StaticResource compressionTypes}"/>
+            </StackPanel>
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text=" File CompressionType:    "/>
+                <ComboBox Width="120" SelectedIndex="0" IsReadOnly="true" ItemsSource="{StaticResource compressionTypes}"/>
+            </StackPanel>
+            <Separator/>
+
+        </StackPanel>
+
+        <StackPanel VerticalAlignment="Bottom">
+            
+            <Separator/>
+            
+            <StackPanel Margin="0,3,0,5" Orientation="Horizontal">
+                <CheckBox Margin="10,0,0,0" />
+                <TextBlock Text="Open Explorer on completion" Margin="5,0,0,0" />
+            </StackPanel>
+
+            <Button Content="Build PAK" Margin="10,0,10,10" VerticalAlignment="Bottom" />
+        </StackPanel>
+
+    </Grid>
+</Window>
