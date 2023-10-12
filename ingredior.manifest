@@ -1,6 +1,0 @@
-{
-  "launcherVer":"1.5.0",
-  "appManifestURI": "https://raw.githubusercontent.com/ZeroElectric/AE-Orbis-Launcher/main/orbis-update.manifest",
-  "launcherManifestURI": "https://raw.githubusercontent.com/ZeroElectric/AE-Orbis-Launcher/main/launcher-update.manifest",
-  "outputTemplate": "ae-orbis-app"
-}

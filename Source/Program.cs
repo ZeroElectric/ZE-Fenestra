@@ -1,18 +1,20 @@
-﻿using Onova;
-using Onova.Models;
-using Onova.Services;
-using Serilog;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Windows;
+using Onova;
+using Onova.Models;
+using Onova.Services;
+using Serilog;
 
 namespace ZeroElectric.Fenestra
 {
-    public class Program
+    public static class Program
     {
         public static Installer Installer { get; private set; } = new Installer();
-        public static AppManifest AppManifest { get; private set; }
+        public static AppManifest AppManifest { get; private set; } 
 
         //
         // Args
@@ -31,11 +33,21 @@ namespace ZeroElectric.Fenestra
         public static bool BuildPkg = false;
         public static bool BuildPort = false;
 
+        public static bool DoDebug = true;
+        public static bool DoClean = true;
+        public static bool NoLaunch = false;
+
+        public static bool UseCompression = true;
+        public static CompressionType CompressionType = CompressionType.LZ4;
+
+        public static bool InternalCompression = true;
+        public static CompressionType InternalCompressionType = CompressionType.LZ4;
+
         [STAThread]
-        public static async void Main(string[] args)
+        public static void Main(string[] args)
         {
             // Setup logger
-            string logFile = FileSystemHelper.GetFile($"aeoi-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}.log", true, FileSystemHelper.TempLog);
+            var logFile = FS.GetFile($"aeoi-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}.log", true, FS.TempLog);
 
             Log.Logger = new LoggerConfiguration().MinimumLevel.Verbose()
                 .WriteTo.Console()
@@ -45,24 +57,22 @@ namespace ZeroElectric.Fenestra
             Log.Information("Starting ZeroElectric.Fenestra...");
 
             // Detect args
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 try
                 {
-                    string[] split = args[i].Split('=');
+                    var split = args[i].Split('=');
 
                     switch (split[0])
                     {
+
                         case "-update":
                             {
                                 LauncherUpdated = true;
                                 LauncherUpdateVer = split[1];
 
                                 // Clear Temp
-                                foreach (string file in Directory.GetFiles(FileSystemHelper.Temp, "*"))
-                                {
-                                    File.Delete(file);
-                                }
+                                FS.ClearTemp();
 
                                 break;
                             }
@@ -98,6 +108,18 @@ namespace ZeroElectric.Fenestra
                                 break;
                             }
 
+                        case "-nolaunch":
+                            {
+                                NoLaunch = true;
+                                break;
+                            }
+
+                        case "-debug":
+                            {
+                                DoDebug = true;
+                                break;
+                            }
+
                         case "-appargs": // eg: -appargs=loadpage?home,resetproj?vitanova
                             {
                                 if (split[1] != null)
@@ -126,11 +148,11 @@ namespace ZeroElectric.Fenestra
             }
 
             // Load AppManifest
-            if (File.Exists(FileSystemHelper.AppManifest))
+            if (File.Exists(FS.AppManifest))
             {
                 try
                 {
-                    using (FileStream stream = File.OpenRead(FileSystemHelper.AppManifest))
+                    using (var stream = File.OpenRead(FS.AppManifest))
                     {
                         AppManifest = JsonSerializer.Deserialize<AppManifest>(stream);
                     }
@@ -141,9 +163,9 @@ namespace ZeroElectric.Fenestra
 
                         Log.Information("Launcher has been updated, v{ver}", AppManifest.launcherVer);
 
-                        using (FileStream stream = File.Create(FileSystemHelper.AppManifest))
+                        using (var stream = File.Create(FS.AppManifest))
                         {
-                            JsonSerializer.Serialize<AppManifest>(stream, AppManifest);
+                            JsonSerializer.Serialize(stream, AppManifest);
                         }
 
                         Log.Debug("AppManifest has been saved");
@@ -163,15 +185,24 @@ namespace ZeroElectric.Fenestra
                 }
             }
 
+            if (DoDebug)
+            {
+                var application = new App();
+                application.InitializeComponent();
+                application.Run();
+
+                return;
+            }
+
             // Update Launcher if available
             if (AppManifest != null && Debugger.IsAttached == false && DoUpdate == true && BuildPkg == false && IgnoreLauncherUpdate == false)
             {
-                using (UpdateManager manager = new UpdateManager(
+                using (var manager = new UpdateManager(
                     new AssemblyMetadata("ZeroElectric.Fenestra", AppSettings.Settings.FenestraVersion, AppManifest.GetType().Assembly.Location),
                     new WebPackageResolver(AppManifest.launcherManifestURI),
                     new ZipPackageExtractor()))
                 {
-                    System.Threading.Tasks.Task<CheckForUpdatesResult> update = manager.CheckForUpdatesAsync();
+                    var update = manager.CheckForUpdatesAsync();
 
                     Log.Debug("Checking for Launcher updates...");
 
@@ -206,7 +237,7 @@ namespace ZeroElectric.Fenestra
                 }
             }
 
-            // Load a default AppManifest is none was present 
+            // Load a default AppManifest if none was present 
             if (AppManifest == null)
             {
                 AppManifest = new AppManifest();
@@ -214,21 +245,30 @@ namespace ZeroElectric.Fenestra
 
             if (BuildPkg)
             {
-                var hedder = await Installer.BuildPkg();
-
-                SetupBuilder.Builder.BuildEXE(hedder, BuildPort);
+                //Installer.BuildPkg();
+                //Installer.Start_Build();
+                //SetupBuilder.Builder.BuildEXE(Installer.MPAKHeader, BuildPort);
             }
             else if (DoUpdate)
             {
                 // Run the Launcher like normal
 
-                App application = new App();
+                if (string.IsNullOrEmpty(AppManifest.appManifestURI))
+                {
+                    Log.Fatal("ingredior.manifest was not found or was invallid");
+
+                    MessageBox.Show("Fenestra is not setup for install mode.\ningredior.manifest was not found or was invallid.", "Fenestra [Fatal Error]!", MessageBoxButton.OK);
+
+                    Environment.Exit(1);
+                }
+
+                var application = new App();
                 application.InitializeComponent();
                 application.Run();
             }
             else
             {
-                Installer.RunAppAsync().Wait();
+                Installer.Launch();
             }
         }
     }

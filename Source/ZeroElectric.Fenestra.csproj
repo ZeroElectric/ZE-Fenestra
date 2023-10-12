@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EE298A69-19DA-4687-88A4-681DB2FB988D}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ZeroElectric.Fenestra</RootNamespace>
     <AssemblyName>ZeroElectric.Fenestra</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -56,8 +56,27 @@
     <StartupObject>ZeroElectric.Fenestra.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>assets\orbis_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -82,14 +101,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\AppManifest.cs" />
-    <Compile Include="Helpers\FileSystemHelper.cs" />
-    <Compile Include="Models\AppSettings.cs" />
-    <Compile Include="SetupBuilder.cs" />
-    <Compile Include="Models\MPack.cs" />
-    <Compile Include="Installer.cs" />
-    <Compile Include="Helpers\DependencyDetector.cs" />
-    <Compile Include="Helpers\Win32.cs" />
+    <Compile Include="Fenestra\Builders\PakBuilder.cs" />
+    <Compile Include="Fenestra\Builders\SrcBuilder.cs" />
+    <Compile Include="Fenestra\App\Extensions.cs" />
+    <Compile Include="Fenestra\CompressionType.cs" />
+    <Compile Include="Fenestra\StageManager.cs" />
+    <Compile Include="Fenestra\App\AppManifest.cs" />
+    <Compile Include="Fenestra\App\FS.cs" />
+    <Compile Include="Fenestra\App\AppSettings.cs" />
+    <Compile Include="Fenestra\Builders\SetupBuilder.cs" />
+    <Compile Include="Fenestra\FEPack.cs" />
+    <Compile Include="Fenestra\Installer\Installer.cs" />
+    <Compile Include="Fenestra\Installer\DependencyDetector.cs" />
+    <Compile Include="Fenestra\App\Win32.cs" />
+    <Page Include="Windows\Editor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -113,6 +141,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LZMA\LZMA.cs" />
+    <Compile Include="Windows\Editor.xaml.cs">
+      <DependentUpon>Editor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -152,19 +183,28 @@
     <Resource Include="assets\orbis_icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CliFx">
+      <Version>2.3.4</Version>
+    </PackageReference>
     <PackageReference Include="Costura.Fody">
       <Version>5.7.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="K4os.Compression.LZ4">
+      <Version>1.3.5</Version>
+    </PackageReference>
+    <PackageReference Include="K4os.Compression.LZ4.Streams">
+      <Version>1.3.5</Version>
+    </PackageReference>
     <PackageReference Include="MessagePack">
-      <Version>2.5.108</Version>
+      <Version>2.5.124</Version>
     </PackageReference>
     <PackageReference Include="Onova">
-      <Version>2.6.8</Version>
+      <Version>2.6.10</Version>
     </PackageReference>
     <PackageReference Include="Serilog">
-      <Version>2.12.0</Version>
+      <Version>3.0.1</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.Console">
       <Version>4.1.0</Version>
@@ -179,7 +219,10 @@
       <Version>4.5.5</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>7.0.2</Version>
+      <Version>7.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Ulid">
+      <Version>1.2.6</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -200,5 +243,14 @@
   <ItemGroup>
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\zef-launcher-hero.png" />
+    <Resource Include="assets\zei-launcher-hero.png" />
+    <Resource Include="assets\zeo-launcher-hero.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\zeg_icon.ico" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

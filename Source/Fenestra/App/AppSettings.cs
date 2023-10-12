@@ -1,8 +1,7 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
-using ZeroElectric.Fenestra;
+using Serilog;
 
 namespace ZeroElectric.Fenestra
 {
@@ -15,19 +14,22 @@ namespace ZeroElectric.Fenestra
 
         public DateTime NextUpdateCheck { get; set; } = DateTime.MinValue;
         public Version InstalledAppVersion { get; set; } = new Version(0, 0, 0);
-        public MPackManifest LastHeader { get; set; } = null;
+        public FEPackManifest LastHeader { get; set; } = null;
 
         #region Static
 
-        public static AppSettings Settings { get; private set; }
+        public static AppSettings Settings
+        {
+            get; private set;
+        }
 
         public static void Load()
         {
             try
             {
-                if (File.Exists(FileSystemHelper.AppSettings))
+                if (File.Exists(FS.AppSettings))
                 {
-                    using (FileStream stream = File.OpenRead(FileSystemHelper.AppSettings))
+                    using (FileStream stream = File.OpenRead(FS.AppSettings))
                     {
                         Settings = JsonSerializer.Deserialize<AppSettings>(stream);
                     }
@@ -49,7 +51,7 @@ namespace ZeroElectric.Fenestra
         {
             try
             {
-                using (FileStream stream = File.Create(FileSystemHelper.AppSettings))
+                using (FileStream stream = File.Create(FS.AppSettings))
                 {
                     JsonSerializer.Serialize<AppSettings>(stream, Settings);
                 }
